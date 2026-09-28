@@ -38,6 +38,8 @@ visualization:
         - { from: v1-34, to: v1-44, kind: tree }
         - { from: v2-root, to: v2-34, kind: tree }
         - { from: v2-34, to: v2-44, kind: tree }
+        - { from: v2-root, to: v1-12, kind: shared }
+        - { from: v2-34, to: v1-33, kind: shared }
     - note: >-
         La consulta arranca desde el puntero guardado de v1-root — no
         desde v2-root. v2 (marcado como no usado en este recorrido) no
@@ -66,6 +68,8 @@ visualization:
         - { from: v1-34, to: v1-44, kind: tree }
         - { from: v2-root, to: v2-34, kind: tree }
         - { from: v2-34, to: v2-44, kind: tree }
+        - { from: v2-root, to: v1-12, kind: shared }
+        - { from: v2-34, to: v1-33, kind: shared }
     - note: >-
         En v1-root, m=2 y pos=4 > m: se desciende por el hijo derecho,
         v1-34. v1-root queda visitado — `shared`, no se tocó, sigue siendo
@@ -95,6 +99,8 @@ visualization:
         - { from: v1-34, to: v1-44, kind: tree }
         - { from: v2-root, to: v2-34, kind: tree }
         - { from: v2-34, to: v2-44, kind: tree }
+        - { from: v2-root, to: v1-12, kind: shared }
+        - { from: v2-34, to: v1-33, kind: shared }
     - note: >-
         En v1-34, m=3 y pos=4 > m: se desciende por el hijo derecho,
         v1-44. v1-34 queda visitado — `shared`, sin tocarse — y v1-33
@@ -123,6 +129,8 @@ visualization:
         - { from: v1-34, to: v1-44, kind: tree }
         - { from: v2-root, to: v2-34, kind: tree }
         - { from: v2-34, to: v2-44, kind: tree }
+        - { from: v2-root, to: v1-12, kind: shared }
+        - { from: v2-34, to: v1-33, kind: shared }
     - note: >-
         Caso base: l=r=4, se llegó a la hoja v1-44 de **v1**. Su valor es
         el valor *original* de la posición 4 — el que tenía antes del
@@ -152,6 +160,8 @@ visualization:
         - { from: v1-34, to: v1-44, kind: tree }
         - { from: v2-root, to: v2-34, kind: tree }
         - { from: v2-34, to: v2-44, kind: tree }
+        - { from: v2-root, to: v1-12, kind: shared }
+        - { from: v2-34, to: v1-33, kind: shared }
     - note: >-
         El camino completo recorrido — v1-root, v1-34, v1-44, todos
         `shared` o `answer` — pertenece por entero a v1: ninguno de estos
@@ -181,6 +191,39 @@ visualization:
         - { from: v1-34, to: v1-44, kind: tree }
         - { from: v2-root, to: v2-34, kind: tree }
         - { from: v2-34, to: v2-44, kind: tree }
+        - { from: v2-root, to: v1-12, kind: shared }
+        - { from: v2-34, to: v1-33, kind: shared }
+    - note: >-
+        Contraste: ¿Y si consultáramos la misma pos=4 en v2? Pasando `v2-root`,
+        el recorrido desciende por v2-34 hasta v2-44 (el valor nuevo),
+        reutilizando v1-12 y v1-33 de v1. Ambas versiones coexisten de forma
+        autónoma y responden en O(lg n).
+      highlight: ["v2-root", "v2-34", "v2-44"]
+      versions:
+        - { id: v1, label: v1 }
+        - { id: v2, label: v2 }
+      nodes:
+        - { id: v1-root, value: "[1,4]", parent: null, version: v1, state: muted }
+        - { id: v1-12, value: "[1,2]", parent: v1-root, version: v1, state: shared }
+        - { id: v1-34, value: "[3,4]", parent: v1-root, version: v1, state: muted }
+        - { id: v1-11, value: "[1,1]", parent: v1-12, version: v1, state: shared }
+        - { id: v1-22, value: "[2,2]", parent: v1-12, version: v1, state: shared }
+        - { id: v1-33, value: "[3,3]", parent: v1-34, version: v1, state: shared }
+        - { id: v1-44, value: "[4,4]", parent: v1-34, version: v1, state: muted }
+        - { id: v2-root, value: "[1,4]'", parent: null, version: v2, state: active }
+        - { id: v2-34, value: "[3,4]'", parent: v2-root, version: v2, state: active }
+        - { id: v2-44, value: "[4,4]'", parent: v2-34, version: v2, state: answer, tag: "nuevo" }
+      links:
+        - { from: v1-root, to: v1-12, kind: tree }
+        - { from: v1-root, to: v1-34, kind: tree }
+        - { from: v1-12, to: v1-11, kind: tree }
+        - { from: v1-12, to: v1-22, kind: tree }
+        - { from: v1-34, to: v1-33, kind: tree }
+        - { from: v1-34, to: v1-44, kind: tree }
+        - { from: v2-root, to: v2-34, kind: tree }
+        - { from: v2-34, to: v2-44, kind: tree }
+        - { from: v2-root, to: v1-12, kind: shared }
+        - { from: v2-34, to: v1-33, kind: shared }
 ---
 
 ## Qué hace

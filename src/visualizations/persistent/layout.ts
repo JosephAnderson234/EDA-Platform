@@ -93,13 +93,14 @@ function layoutPathCopying(step: PersistentStep): Frame {
 
     panelBox.set(v.id, { x0, width: panelWidth });
     const placed = scale(unscaled, { x0: x0 + 16, width: panelWidth - 32, y0: TOP, rowGap: ROW_GAP });
-    const collapsedById = new Map(nodesInVersion.map((n) => [n.id, n.collapsed]));
+    const nodeById = new Map(nodesInVersion.map((n) => [n.id, n]));
     for (const p of placed) {
-      const collapsed = collapsedById.get(p.id);
+      const orig = nodeById.get(p.id);
+      const collapsed = orig?.collapsed;
       outNodes.push(
         collapsed
-          ? { id: p.id, label: p.label, x: p.x, y: p.y, shape: 'subtree', w: boxWidth(p.label, 14, 44), h: 40 }
-          : { id: p.id, label: p.label, x: p.x, y: p.y, w: boxWidth(p.label) },
+          ? { id: p.id, label: p.label, x: p.x, y: p.y, shape: 'subtree', w: boxWidth(p.label, 14, 44), h: 40, tag: orig?.tag }
+          : { id: p.id, label: p.label, x: p.x, y: p.y, w: boxWidth(p.label), tag: orig?.tag },
       );
       maxY = Math.max(maxY, p.y);
     }

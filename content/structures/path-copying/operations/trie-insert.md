@@ -15,35 +15,41 @@ visualization:
         Versión v0 del trie: ya tiene insertadas "at" y "on" (raíz con
         hijos 'a' y 'o'; 'a' tiene hijo 't', final; 'o' tiene hijo 'n',
         final). Se va a ejecutar Insert(v0, "ab", 0).
+      versions:
+        - { id: v0, label: v0 }
       nodes:
-        - { id: v0-root, value: "•", parent: null }
-        - { id: v0-a, value: "a", parent: v0-root }
-        - { id: v0-o, value: "o", parent: v0-root }
-        - { id: v0-t, value: "t (final)", parent: v0-a }
-        - { id: v0-n, value: "n (final)", parent: v0-o }
+        - { id: v0-root, value: "•", parent: null, version: v0 }
+        - { id: v0-a, value: "a", parent: v0-root, version: v0 }
+        - { id: v0-o, value: "o", parent: v0-root, version: v0 }
+        - { id: v0-t, value: "t", tag: "final", parent: v0-a, version: v0 }
+        - { id: v0-n, value: "n", tag: "final", parent: v0-o, version: v0 }
     - note: >-
         En la raíz: `c = s[0] = 'a'`, así que el camino baja por el hijo
         'a'. El hijo 'o' — y todo lo que cuelga de él, el nodo 'n' de
         "on" — queda fuera del camino desde ahora: nunca se visita.
       highlight: ["v0-root", "v0-a"]
+      versions:
+        - { id: v0, label: v0 }
       nodes:
-        - { id: v0-root, value: "•", parent: null }
-        - { id: v0-a, value: "a", parent: v0-root }
-        - { id: v0-o, value: "o", parent: v0-root, state: muted }
-        - { id: v0-t, value: "t (final)", parent: v0-a }
-        - { id: v0-n, value: "n (final)", parent: v0-o, state: muted }
+        - { id: v0-root, value: "•", parent: null, version: v0 }
+        - { id: v0-a, value: "a", parent: v0-root, version: v0 }
+        - { id: v0-o, value: "o", parent: v0-root, version: v0, state: muted }
+        - { id: v0-t, value: "t", tag: "final", parent: v0-a, version: v0 }
+        - { id: v0-n, value: "n", tag: "final", parent: v0-o, version: v0, state: muted }
     - note: >-
         En el nodo 'a': `c = s[1] = 'b'`. `hijoViejo = a.hijos['b']` no
         existe todavía (sólo tiene 't', de "at"). El hijo 't' — un solo
         nodo — queda descartado del camino igual que el subárbol de 'o',
         pero de un solo nodo.
       highlight: ["v0-a"]
+      versions:
+        - { id: v0, label: v0 }
       nodes:
-        - { id: v0-root, value: "•", parent: null }
-        - { id: v0-a, value: "a", parent: v0-root }
-        - { id: v0-o, value: "o", parent: v0-root, state: muted }
-        - { id: v0-t, value: "t (final)", parent: v0-a, state: muted }
-        - { id: v0-n, value: "n (final)", parent: v0-o, state: muted }
+        - { id: v0-root, value: "•", parent: null, version: v0 }
+        - { id: v0-a, value: "a", parent: v0-root, version: v0 }
+        - { id: v0-o, value: "o", parent: v0-root, version: v0, state: muted }
+        - { id: v0-t, value: "t", tag: "final", parent: v0-a, version: v0, state: muted }
+        - { id: v0-n, value: "n", tag: "final", parent: v0-o, version: v0, state: muted }
     - note: >-
         Caso base: `i = 2 = |"ab"|` sobre un trie vacío (no había hijo
         'b'). Se crea el nodo nuevo v1-b con `esFinal ← verdadero` — el
@@ -56,9 +62,9 @@ visualization:
         - { id: v0-root, value: "•", parent: null, version: v0 }
         - { id: v0-a, value: "a", parent: v0-root, version: v0 }
         - { id: v0-o, value: "o", parent: v0-root, version: v0 }
-        - { id: v0-t, value: "t (final)", parent: v0-a, version: v0 }
-        - { id: v0-n, value: "n (final)", parent: v0-o, version: v0 }
-        - { id: v1-b, value: "b (final)", parent: null, version: v1, state: copied }
+        - { id: v0-t, value: "t", tag: "final", parent: v0-a, version: v0 }
+        - { id: v0-n, value: "n", tag: "final", parent: v0-o, version: v0 }
+        - { id: v1-b, value: "b", tag: "final", parent: null, version: v1, state: copied }
     - note: >-
         Al volver de la recursión en 'a': se copia como v1-a. Su hijo 't'
         apunta al v0-t original tal cual — compartido, no se copia — y su
@@ -71,10 +77,10 @@ visualization:
         - { id: v0-root, value: "•", parent: null, version: v0 }
         - { id: v0-a, value: "a", parent: v0-root, version: v0 }
         - { id: v0-o, value: "o", parent: v0-root, version: v0 }
-        - { id: v0-t, value: "t (final)", parent: v0-a, version: v0, state: shared }
-        - { id: v0-n, value: "n (final)", parent: v0-o, version: v0 }
+        - { id: v0-t, value: "t", tag: "final", parent: v0-a, version: v0, state: shared }
+        - { id: v0-n, value: "n", tag: "final", parent: v0-o, version: v0 }
         - { id: v1-a, value: "a", parent: null, version: v1, state: copied }
-        - { id: v1-b, value: "b (final)", parent: v1-a, version: v1, state: copied }
+        - { id: v1-b, value: "b", tag: "final", parent: v1-a, version: v1, state: copied }
       links:
         - { from: v0-root, to: v0-a, kind: tree }
         - { from: v0-root, to: v0-o, kind: tree }
@@ -94,11 +100,11 @@ visualization:
         - { id: v0-root, value: "•", parent: null, version: v0 }
         - { id: v0-a, value: "a", parent: v0-root, version: v0 }
         - { id: v0-o, value: "o", parent: v0-root, version: v0, state: shared }
-        - { id: v0-t, value: "t (final)", parent: v0-a, version: v0, state: shared }
-        - { id: v0-n, value: "n (final)", parent: v0-o, version: v0, state: shared }
+        - { id: v0-t, value: "t", tag: "final", parent: v0-a, version: v0, state: shared }
+        - { id: v0-n, value: "n", tag: "final", parent: v0-o, version: v0, state: shared }
         - { id: v1-root, value: "•", parent: null, version: v1, state: copied }
         - { id: v1-a, value: "a", parent: v1-root, version: v1, state: copied }
-        - { id: v1-b, value: "b (final)", parent: v1-a, version: v1, state: copied }
+        - { id: v1-b, value: "b", tag: "final", parent: v1-a, version: v1, state: copied }
       links:
         - { from: v0-root, to: v0-a, kind: tree }
         - { from: v0-root, to: v0-o, kind: tree }
@@ -122,11 +128,11 @@ visualization:
         - { id: v0-root, value: "•", parent: null, version: v0 }
         - { id: v0-a, value: "a", parent: v0-root, version: v0 }
         - { id: v0-o, value: "o", parent: v0-root, version: v0, state: shared }
-        - { id: v0-t, value: "t (final)", parent: v0-a, version: v0, state: shared }
-        - { id: v0-n, value: "n (final)", parent: v0-o, version: v0, state: shared }
+        - { id: v0-t, value: "t", tag: "final", parent: v0-a, version: v0, state: shared }
+        - { id: v0-n, value: "n", tag: "final", parent: v0-o, version: v0, state: shared }
         - { id: v1-root, value: "•", parent: null, version: v1, state: answer }
         - { id: v1-a, value: "a", parent: v1-root, version: v1, state: answer }
-        - { id: v1-b, value: "b (final)", parent: v1-a, version: v1, state: answer }
+        - { id: v1-b, value: "b", tag: "final", parent: v1-a, version: v1, state: answer }
       links:
         - { from: v0-root, to: v0-a, kind: tree }
         - { from: v0-root, to: v0-o, kind: tree }
@@ -136,6 +142,40 @@ visualization:
         - { from: v1-a, to: v1-b, kind: tree }
         - { from: v1-root, to: v0-o, kind: shared }
         - { from: v1-a, to: v0-t, kind: shared }
+    - note: >-
+        Bifurcación y extensión: ¿Y si ahora insertamos "as" partiendo de v0 (`v2 = Insert(v0, "as")`)?
+        No tocamos ni v0 ni v1. Se crea la rama v2 con sólo 3 nodos (raíz'', a'', s''),
+        compartiendo 't' y el subárbol 'o'→'n' de v0. Las tres versiones coexisten en paralelo.
+      highlight: ["v2-root", "v2-a", "v2-s"]
+      versions:
+        - { id: v0, label: v0 }
+        - { id: v1, label: v1 }
+        - { id: v2, label: v2 }
+      nodes:
+        - { id: v0-root, value: "•", parent: null, version: v0 }
+        - { id: v0-a, value: "a", parent: v0-root, version: v0 }
+        - { id: v0-o, value: "o", parent: v0-root, version: v0, state: shared }
+        - { id: v0-t, value: "t", tag: "final", parent: v0-a, version: v0, state: shared }
+        - { id: v0-n, value: "n", tag: "final", parent: v0-o, version: v0, state: shared }
+        - { id: v1-root, value: "•", parent: null, version: v1, state: shared }
+        - { id: v1-a, value: "a", parent: v1-root, version: v1, state: shared }
+        - { id: v1-b, value: "b", tag: "final", parent: v1-a, version: v1, state: shared }
+        - { id: v2-root, value: "•", parent: null, version: v2, state: answer }
+        - { id: v2-a, value: "a", parent: v2-root, version: v2, state: answer }
+        - { id: v2-s, value: "s", tag: "final", parent: v2-a, version: v2, state: answer }
+      links:
+        - { from: v0-root, to: v0-a, kind: tree }
+        - { from: v0-root, to: v0-o, kind: tree }
+        - { from: v0-a, to: v0-t, kind: tree }
+        - { from: v0-o, to: v0-n, kind: tree }
+        - { from: v1-root, to: v1-a, kind: tree }
+        - { from: v1-a, to: v1-b, kind: tree }
+        - { from: v1-root, to: v0-o, kind: shared }
+        - { from: v1-a, to: v0-t, kind: shared }
+        - { from: v2-root, to: v2-a, kind: tree }
+        - { from: v2-a, to: v2-s, kind: tree }
+        - { from: v2-root, to: v0-o, kind: shared }
+        - { from: v2-a, to: v0-t, kind: shared }
 ---
 
 ## Qué hace
