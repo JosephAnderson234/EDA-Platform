@@ -8,9 +8,13 @@
 using namespace std;
 
 struct SegNode {
-    long long value = 0;
-    SegNode* left = nullptr;
-    SegNode* right = nullptr;
+    long long value;
+    SegNode* left;
+    SegNode* right;
+
+    // Constructor explícito: valor y punteros a los hijos izquierdo y derecho
+    SegNode(long long val = 0, SegNode* l = nullptr, SegNode* r = nullptr)
+        : value(val), left(l), right(r) {}
 };
 
 long long combinar(long long a, long long b) { return a + b; }
@@ -24,35 +28,24 @@ long long combinar(long long a, long long b) { return a + b; }
 //     nuevo.valor <- combinar(nuevo.izq.valor, nuevo.der.valor) ;
 // devolver nuevo ;
 SegNode* update(SegNode* nodo, int l, int r, int pos, long long val) {
-    auto nuevo = new SegNode(*nodo); // copia el nodo actual (izq/der apuntan a lo viejo)
     if (l == r) {
-        nuevo->value = val;
-        return nuevo;
+        return new SegNode(val);
     }
     int m = (l + r) / 2;
-    if (pos <= m) {
-        nuevo->left = update(nodo->left, l, m, pos, val);
-        // nuevo->right ya apunta al subárbol viejo: compartido, no se copia.
-    } else {
-        nuevo->right = update(nodo->right, m + 1, r, pos, val);
-        // nuevo->left ya apunta al subárbol viejo: compartido, no se copia.
-    }
-    nuevo->value = combinar(nuevo->left->value, nuevo->right->value);
-    return nuevo;
+    SegNode* nuevoIzq = (pos <= m) ? update(nodo->left, l, m, pos, val) : nodo->left;
+    SegNode* nuevoDer = (pos > m) ? update(nodo->right, m + 1, r, pos, val) : nodo->right;
+    return new SegNode(combinar(nuevoIzq->value, nuevoDer->value), nuevoIzq, nuevoDer);
 }
 
 // Construcción efímera inicial (prerrequisito, no repetida como tema nuevo).
 SegNode* build(const long long* arr, int l, int r) {
-    auto nodo = new SegNode();
     if (l == r) {
-        nodo->value = arr[l];
-        return nodo;
+        return new SegNode(arr[l]);
     }
     int m = (l + r) / 2;
-    nodo->left = build(arr, l, m);
-    nodo->right = build(arr, m + 1, r);
-    nodo->value = combinar(nodo->left->value, nodo->right->value);
-    return nodo;
+    SegNode* izq = build(arr, l, m);
+    SegNode* der = build(arr, m + 1, r);
+    return new SegNode(combinar(izq->value, der->value), izq, der);
 }
 
 // Consulta normal (la misma para cualquier versión: ver query-old-version.md).

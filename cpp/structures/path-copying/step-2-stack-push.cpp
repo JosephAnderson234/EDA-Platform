@@ -7,12 +7,15 @@ using namespace std;
 
 struct StackNode {
     int value;
-    StackNode* next = nullptr;
+    StackNode* next;
+
+    // Constructor explícito: 'val' es el elemento a guardar, 'nxt' es el tope de la versión anterior
+    StackNode(int val, StackNode* nxt = nullptr) : value(val), next(nxt) {}
 };
 
-// nuevo <- nodo con valor x y siguiente <- S ;
-// devolver nuevo ;        // S (la versión vieja) sigue intacta
+// nuevo <- nodo con valor x y siguiente <- s ;
+// devolver nuevo ;        // s (la versión vieja) sigue intacta
 StackNode* push(StackNode* s, int x) {
-    return new StackNode{x, s};
+    return new StackNode(x, s);
 }
 

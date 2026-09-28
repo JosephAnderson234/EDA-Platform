@@ -16,51 +16,49 @@ using namespace std;
 // ---------------------------------------------------------------------
 struct StackNode {
     int value;
-    StackNode* next = nullptr;
+    StackNode* next;
+
+    // Constructor explícito: 'val' es el elemento a guardar, 'nxt' es el tope de la versión anterior
+    StackNode(int val, StackNode* nxt = nullptr) : value(val), next(nxt) {}
 };
 
 StackNode* stackPush(StackNode* s, int x) {
-    return new StackNode{x, s};
+    return new StackNode(x, s);
 }
 
 // ---------------------------------------------------------------------
 // Segment tree persistente (Algoritmo 3), combinar = suma
 // ---------------------------------------------------------------------
 struct SegNode {
-    long long value = 0;
-    SegNode* left = nullptr;
-    SegNode* right = nullptr;
+    long long value;
+    SegNode* left;
+    SegNode* right;
+
+    // Constructor explícito: valor y punteros a los hijos izquierdo y derecho
+    SegNode(long long val = 0, SegNode* l = nullptr, SegNode* r = nullptr)
+        : value(val), left(l), right(r) {}
 };
 
 long long combinar(long long a, long long b) { return a + b; }
 
 SegNode* segBuild(const long long* arr, int l, int r) {
-    auto nodo = new SegNode();
     if (l == r) {
-        nodo->value = arr[l];
-        return nodo;
+        return new SegNode(arr[l]);
     }
     int m = (l + r) / 2;
-    nodo->left = segBuild(arr, l, m);
-    nodo->right = segBuild(arr, m + 1, r);
-    nodo->value = combinar(nodo->left->value, nodo->right->value);
-    return nodo;
+    SegNode* izq = segBuild(arr, l, m);
+    SegNode* der = segBuild(arr, m + 1, r);
+    return new SegNode(combinar(izq->value, der->value), izq, der);
 }
 
 SegNode* segUpdate(SegNode* nodo, int l, int r, int pos, long long val) {
-    auto nuevo = new SegNode(*nodo);
     if (l == r) {
-        nuevo->value = val;
-        return nuevo;
+        return new SegNode(val);
     }
     int m = (l + r) / 2;
-    if (pos <= m) {
-        nuevo->left = segUpdate(nodo->left, l, m, pos, val);
-    } else {
-        nuevo->right = segUpdate(nodo->right, m + 1, r, pos, val);
-    }
-    nuevo->value = combinar(nuevo->left->value, nuevo->right->value);
-    return nuevo;
+    SegNode* nuevoIzq = (pos <= m) ? segUpdate(nodo->left, l, m, pos, val) : nodo->left;
+    SegNode* nuevoDer = (pos > m) ? segUpdate(nodo->right, m + 1, r, pos, val) : nodo->right;
+    return new SegNode(combinar(nuevoIzq->value, nuevoDer->value), nuevoIzq, nuevoDer);
 }
 
 // "hacer la consulta normal desde ahí" — misma query para cualquier versión.
@@ -77,20 +75,21 @@ long long segQuery(SegNode* nodo, int l, int r, int ql, int qr) {
 constexpr int ALPHABET = 26;
 
 struct TrieNode {
-    bool isEnd = false;
+    bool isEnd;
     vector<TrieNode*> children;
-    TrieNode() : children(ALPHABET, nullptr) {}
+
+    // Constructor explícito: define si es fin de palabra e inicializa los 26 hijos a nullptr
+    TrieNode(bool end = false) : isEnd(end), children(ALPHABET, nullptr) {}
 };
 
 TrieNode* trieInsert(TrieNode* nodo, const string& s, size_t i) {
-    auto base = nodo ? nodo : new TrieNode();
-    auto nuevo = new TrieNode(*base);
+    TrieNode* nuevo = nodo ? new TrieNode(*nodo) : new TrieNode();
     if (i == s.size()) {
         nuevo->isEnd = true;
         return nuevo; // corrección: el pseudocódigo del profesor no retorna aquí
     }
     int c = s[i] - 'a';
-    auto hijoViejo = nodo ? nodo->children[c] : nullptr;
+    TrieNode* hijoViejo = nodo ? nodo->children[c] : nullptr;
     nuevo->children[c] = trieInsert(hijoViejo, s, i + 1);
     return nuevo;
 }
@@ -103,14 +102,16 @@ bool trieContains(TrieNode* nodo, const string& s, size_t i) {
 }
 
 int main() {
-    // --- Stack: versiones viejas siguen consultables ---
+    // --- Stack: versiones viejas siguen consultables y bifurcables ---
     StackNode* s0 = nullptr;
     auto s1 = stackPush(s0, 7);
     auto s2 = stackPush(s1, 2);
-    auto s3 = stackPush(s2, 42);
+    auto s3 = stackPush(s2, 42); // Rama A: 42 -> 2 -> 7
+    auto s4 = stackPush(s2, 99); // Rama B (bifurca desde el pasado s2): 99 -> 2 -> 7
 
-    assert(s3->value == 42 && s3->next->value == 2 && s3->next->next->value == 7);
-    assert(s2->value == 2 && s2->next->value == 7); // s2 sigue como estaba, sin el 42
+    assert(s3->value == 42 && s3->next == s2);
+    assert(s4->value == 99 && s4->next == s2); // s3 y s4 coexisten y comparten s2 (2 -> 7)
+    assert(s2->value == 2 && s2->next == s1);
     assert(s1->value == 7 && s1->next == nullptr);
     assert(s0 == nullptr);
 

@@ -43,8 +43,11 @@ using namespace std;
 
 struct Node {
   int val;
-  Node *left = nullptr;
-  Node *right = nullptr;
+  Node *left;
+  Node *right;
+
+  // Constructor explícito: valor del nodo e hijos izquierdo y derecho
+  Node(int v, Node* l = nullptr, Node* r = nullptr) : val(v), left(l), right(r) {}
 };
 using NodeP = Node*;
 
@@ -57,7 +60,7 @@ static vector<NodeP> generateTrees(int lo, int hi) {
     auto rights = generateTrees(root + 1, hi);
     for (auto &l : lefts)
       for (auto &r : rights)
-        result.push_back(new Node{root, l, r});
+        result.push_back(new Node(root, l, r));
   }
   return result;
 }
@@ -84,23 +87,23 @@ static NodeP rotateAt(const NodeP &node, int parentVal, bool rotateRight) {
     if (rotateRight) {
       if (!node->left) return node;  // no hay hijo izquierdo: no aplica
       NodeP n = node->left;
-      NodeP newP = new Node{node->val, n->right, node->right};
-      return new Node{n->val, n->left, newP};
+      NodeP newP = new Node(node->val, n->right, node->right);
+      return new Node(n->val, n->left, newP);
     } else {
       if (!node->right) return node;
       NodeP n = node->right;
-      NodeP newP = new Node{node->val, node->left, n->left};
-      return new Node{n->val, newP, n->right};
+      NodeP newP = new Node(node->val, node->left, n->left);
+      return new Node(n->val, newP, n->right);
     }
   }
   if (parentVal < node->val) {
     NodeP newLeft = rotateAt(node->left, parentVal, rotateRight);
     if (newLeft == node->left) return node;
-    return new Node{node->val, newLeft, node->right};
+    return new Node(node->val, newLeft, node->right);
   }
   NodeP newRight = rotateAt(node->right, parentVal, rotateRight);
   if (newRight == node->right) return node;
-  return new Node{node->val, node->left, newRight};
+  return new Node(node->val, node->left, newRight);
 }
 
 // Todos los vecinos a una rotación de distancia de `t` (por valor de nodo).

@@ -12,9 +12,11 @@ using namespace std;
 constexpr int ALPHABET = 26;
 
 struct TrieNode {
-    bool isEnd = false;
+    bool isEnd;
     vector<TrieNode*> children;
-    TrieNode() : children(ALPHABET, nullptr) {}
+
+    // Constructor explícito: inicializa si es final de palabra y reserva los hijos en nullptr
+    TrieNode(bool end = false) : isEnd(end), children(ALPHABET, nullptr) {}
 };
 
 // nuevo <- copia de nodo ;
