@@ -90,8 +90,38 @@ test('path copying: ningún par de nodos se solapa y todo cabe en el viewBox', (
   noOverlaps(frame.nodes);
   for (const n of frame.nodes) {
     const b = box(n);
-    assert.ok(b.l >= 0 && b.r <= 720, `${n.id} se sale del ancho`);
+    assert.ok(b.l >= 0 && b.r <= (frame.width ?? 720), `${n.id} se sale del ancho`);
     assert.ok(b.t >= 0 && b.b <= frame.height, `${n.id} se sale del alto`);
+  }
+});
+
+test('path copying: 3 versiones (v1, v2, v3) se posicionan ordenadas y caben en frame.width sin solaparse', () => {
+  const step: PersistentStep = {
+    note: '',
+    versions: [
+      { id: 'v1', label: 'v1' },
+      { id: 'v2', label: 'v2' },
+      { id: 'v3', label: 'v3' },
+    ],
+    nodes: [
+      { id: 'v1-1', value: '1', parent: null, version: 'v1' },
+      { id: 'v2-1', value: "1'", parent: null, version: 'v2' },
+      { id: 'v3-1', value: "1''", parent: null, version: 'v3' },
+    ],
+    links: [
+      { from: 'v2-1', to: 'v1-1', kind: 'shared' },
+      { from: 'v3-1', to: 'v2-1', kind: 'shared' },
+    ],
+  };
+  const frame = layout(step);
+  noOverlaps(frame.nodes);
+  assert.ok((frame.width ?? 0) >= 720);
+  assert.equal(frame.groups.length, 3);
+  assert.ok(frame.groups[0].x < frame.groups[1].x);
+  assert.ok(frame.groups[1].x < frame.groups[2].x);
+  for (const n of frame.nodes) {
+    const b = box(n);
+    assert.ok(b.l >= 0 && b.r <= frame.width!, `${n.id} se sale del ancho`);
   }
 });
 
