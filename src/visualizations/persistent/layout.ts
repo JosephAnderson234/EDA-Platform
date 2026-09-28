@@ -132,7 +132,8 @@ function layoutPathCopying(step: PersistentStep): Frame {
     if (s && s !== 'idle') n.state = s;
   }
 
-  return { nodes: outNodes, edges: outEdges, groups, annotations: [], height: maxY + 40 };
+  const totalWidth = groups.length ? Math.max(W, Math.max(...groups.map((g) => g.x + g.w))) : W;
+  return { nodes: outNodes, edges: outEdges, groups, annotations: [], height: maxY + 40, width: totalWidth };
 }
 
 /** Árbol de versiones + recorrido de Euler linealizado como anotación que
@@ -156,7 +157,7 @@ function layoutVersionTree(step: PersistentStep): Frame {
   const annotations: CanvasText[] = step.caption
     ? [{ id: 'euler', text: step.caption, x: W / 2, y: maxY + 30, anchor: 'middle', state: 'active' }]
     : [];
-  return { nodes: outNodes, edges: outEdges, groups: [], annotations, height: maxY + 50 };
+  return { nodes: outNodes, edges: outEdges, groups: [], annotations, height: maxY + 50, width: W };
 }
 
 /** Nodo gordo: registro de modificaciones como filas de `(campo, valor, t)`,

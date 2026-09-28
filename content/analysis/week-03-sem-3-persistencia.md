@@ -519,7 +519,7 @@ Ninguna es un tema del curso; son andamios.
    cruzada week-03 → week-02, no como concepto nuevo.
 8. **Estructura efímera vs. persistente en C++ (gestión de memoria).** El path copying
    crea nodos sin parar y el mazo nunca habla de quién los libera. Para la parte de
-   implementación es indispensable (shared_ptr, arena, o simplemente "no liberamos").
+   implementación se usan punteros normales, vector de nodos, o simplemente no se libera (típico de programación competitiva).
    El material no dice nada.
 9. **Layout del nodo gordo**: campos originales + registro de modificaciones como lista
    acotada de tuplas `(campo, valor nuevo, tiempo)`, más los punteros entrantes que

@@ -3,13 +3,9 @@
 //
 // Las tres estructuras del mazo (stack, segment tree, trie), todas
 // persistentes vía path copying: cada operación de escritura devuelve una
-// raíz nueva sin tocar la raíz vieja. Gestión de memoria: shared_ptr (el
-// material no dice nada al respecto; un nodo compartido por varias
-// versiones se libera solo cuando la última versión que lo referencia
-// desaparece).
+// raíz nueva sin tocar la raíz vieja.
 
-#include <memory>
-#include <array>
+#include <vector>
 #include <string>
 #include <cassert>
 #include <iostream>
@@ -20,11 +16,11 @@ using namespace std;
 // ---------------------------------------------------------------------
 struct StackNode {
     int value;
-    shared_ptr<StackNode> next;
+    StackNode* next = nullptr;
 };
 
-shared_ptr<StackNode> stackPush(const shared_ptr<StackNode>& s, int x) {
-    return make_shared<StackNode>(StackNode{x, s});
+StackNode* stackPush(StackNode* s, int x) {
+    return new StackNode{x, s};
 }
 
 // ---------------------------------------------------------------------
@@ -32,14 +28,14 @@ shared_ptr<StackNode> stackPush(const shared_ptr<StackNode>& s, int x) {
 // ---------------------------------------------------------------------
 struct SegNode {
     long long value = 0;
-    shared_ptr<SegNode> left;
-    shared_ptr<SegNode> right;
+    SegNode* left = nullptr;
+    SegNode* right = nullptr;
 };
 
 long long combinar(long long a, long long b) { return a + b; }
 
-shared_ptr<SegNode> segBuild(const long long* arr, int l, int r) {
-    auto nodo = make_shared<SegNode>();
+SegNode* segBuild(const long long* arr, int l, int r) {
+    auto nodo = new SegNode();
     if (l == r) {
         nodo->value = arr[l];
         return nodo;
@@ -51,8 +47,8 @@ shared_ptr<SegNode> segBuild(const long long* arr, int l, int r) {
     return nodo;
 }
 
-shared_ptr<SegNode> segUpdate(const shared_ptr<SegNode>& nodo, int l, int r, int pos, long long val) {
-    auto nuevo = make_shared<SegNode>(*nodo);
+SegNode* segUpdate(SegNode* nodo, int l, int r, int pos, long long val) {
+    auto nuevo = new SegNode(*nodo);
     if (l == r) {
         nuevo->value = val;
         return nuevo;
@@ -68,7 +64,7 @@ shared_ptr<SegNode> segUpdate(const shared_ptr<SegNode>& nodo, int l, int r, int
 }
 
 // "hacer la consulta normal desde ahí" — misma query para cualquier versión.
-long long segQuery(const shared_ptr<SegNode>& nodo, int l, int r, int ql, int qr) {
+long long segQuery(SegNode* nodo, int l, int r, int ql, int qr) {
     if (qr < l || r < ql) return 0;
     if (ql <= l && r <= qr) return nodo->value;
     int m = (l + r) / 2;
@@ -82,12 +78,13 @@ constexpr int ALPHABET = 26;
 
 struct TrieNode {
     bool isEnd = false;
-    array<shared_ptr<TrieNode>, ALPHABET> children{};
+    vector<TrieNode*> children;
+    TrieNode() : children(ALPHABET, nullptr) {}
 };
 
-shared_ptr<TrieNode> trieInsert(const shared_ptr<TrieNode>& nodo, const string& s, size_t i) {
-    auto base = nodo ? nodo : make_shared<TrieNode>();
-    auto nuevo = make_shared<TrieNode>(*base);
+TrieNode* trieInsert(TrieNode* nodo, const string& s, size_t i) {
+    auto base = nodo ? nodo : new TrieNode();
+    auto nuevo = new TrieNode(*base);
     if (i == s.size()) {
         nuevo->isEnd = true;
         return nuevo; // corrección: el pseudocódigo del profesor no retorna aquí
@@ -98,7 +95,7 @@ shared_ptr<TrieNode> trieInsert(const shared_ptr<TrieNode>& nodo, const string& 
     return nuevo;
 }
 
-bool trieContains(const shared_ptr<TrieNode>& nodo, const string& s, size_t i) {
+bool trieContains(TrieNode* nodo, const string& s, size_t i) {
     if (!nodo) return false;
     if (i == s.size()) return nodo->isEnd;
     int c = s[i] - 'a';
@@ -107,7 +104,7 @@ bool trieContains(const shared_ptr<TrieNode>& nodo, const string& s, size_t i) {
 
 int main() {
     // --- Stack: versiones viejas siguen consultables ---
-    shared_ptr<StackNode> s0 = nullptr;
+    StackNode* s0 = nullptr;
     auto s1 = stackPush(s0, 7);
     auto s2 = stackPush(s1, 2);
     auto s3 = stackPush(s2, 42);
@@ -139,7 +136,7 @@ int main() {
     assert(v1->right->left == v2->right->left); // [3,3] compartido dentro de [3,4]
 
     // --- Trie: inserciones persistentes, versiones viejas siguen consultables ---
-    shared_ptr<TrieNode> t0 = nullptr;
+    TrieNode* t0 = nullptr;
     auto t1 = trieInsert(t0, "ab", 0);
     auto t2 = trieInsert(t1, "ac", 0);
 

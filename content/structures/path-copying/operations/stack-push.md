@@ -89,6 +89,69 @@ visualization:
         - { from: v0-a, to: v0-b, kind: tree }
         - { from: v0-b, to: v0-c, kind: tree }
         - { from: v1-42, to: v0-a, kind: shared }
+    - note: >-
+        ¿Qué pasa si seguimos apilando? Ejecutamos `Push(v1, 100)` para crear `v2`.
+        El nodo 100 es la nueva cima de v2 y su `siguiente` apunta a 42 (la cima de v1).
+        La cadena de v2 es 100 → 42 → 7 → 2 → 7.
+      highlight: ["v2-100"]
+      versions:
+        - { id: v0, label: v0 }
+        - { id: v1, label: v1 }
+        - { id: v2, label: v2 }
+      nodes:
+        - { id: v0-a, value: 7, parent: null, version: v0, state: shared }
+        - { id: v0-b, value: 2, parent: v0-a, version: v0, state: shared }
+        - { id: v0-c, value: 7, parent: v0-b, version: v0, state: shared }
+        - { id: v1-42, value: 42, parent: null, version: v1, state: shared }
+        - { id: v2-100, value: 100, parent: null, version: v2, state: answer }
+      links:
+        - { from: v0-a, to: v0-b, kind: tree }
+        - { from: v0-b, to: v0-c, kind: tree }
+        - { from: v1-42, to: v0-a, kind: shared }
+        - { from: v2-100, to: v1-42, kind: shared }
+    - note: >-
+        ¿Podemos volver a operar sobre v0 aunque existan v1 y v2 (o la versión 1 millón)?
+        ¡Sí! En Persistencia Total, nada impide hacer `Push(v0, 99)`.
+        Se crea el nodo 99 en v3, apuntando directamente a la cima de v0 (7).
+      highlight: ["v3-99"]
+      versions:
+        - { id: v0, label: v0 (base) }
+        - { id: v2, label: "v2 (100→42)" }
+        - { id: v3, label: "v3 (rama 99)" }
+      nodes:
+        - { id: v0-a, value: 7, parent: null, version: v0, state: shared }
+        - { id: v0-b, value: 2, parent: v0-a, version: v0, state: shared }
+        - { id: v0-c, value: 7, parent: v0-b, version: v0, state: shared }
+        - { id: v1-42, value: 42, parent: null, version: v2, state: shared }
+        - { id: v2-100, value: 100, parent: v1-42, version: v2, state: shared }
+        - { id: v3-99, value: 99, parent: null, version: v3, state: answer }
+      links:
+        - { from: v0-a, to: v0-b, kind: tree }
+        - { from: v0-b, to: v0-c, kind: tree }
+        - { from: v2-100, to: v1-42, kind: tree }
+        - { from: v1-42, to: v0-a, kind: shared }
+        - { from: v3-99, to: v0-a, kind: shared }
+    - note: >-
+        Árbol de versiones resultante: v2 y v3 son ramas independientes nacidas de v0.
+        Ambas convergen hacia v0 (7 → 2 → 7), compartiendo toda la memoria en O(1) adicional.
+        Ninguna versión se destruye ni sobrescribe a otra.
+      versions:
+        - { id: v0, label: "v0 (tronco común)" }
+        - { id: v2, label: "v2 (rama A)" }
+        - { id: v3, label: "v3 (rama B)" }
+      nodes:
+        - { id: v0-a, value: 7, parent: null, version: v0, state: shared }
+        - { id: v0-b, value: 2, parent: v0-a, version: v0, state: shared }
+        - { id: v0-c, value: 7, parent: v0-b, version: v0, state: shared }
+        - { id: v1-42, value: 42, parent: null, version: v2, state: shared }
+        - { id: v2-100, value: 100, parent: v1-42, version: v2, state: shared }
+        - { id: v3-99, value: 99, parent: null, version: v3, state: shared }
+      links:
+        - { from: v0-a, to: v0-b, kind: tree }
+        - { from: v0-b, to: v0-c, kind: tree }
+        - { from: v2-100, to: v1-42, kind: tree }
+        - { from: v1-42, to: v0-a, kind: shared }
+        - { from: v3-99, to: v0-a, kind: shared }
 ---
 
 ## Qué hace

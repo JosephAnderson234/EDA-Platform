@@ -5,13 +5,12 @@
 // copiarse. `combinar` es la del segment tree efímero (aquí, suma), el
 // mismo prerrequisito ya cubierto en /structures/segment-tree.
 
-#include <memory>
 using namespace std;
 
 struct SegNode {
     long long value = 0;
-    shared_ptr<SegNode> left;
-    shared_ptr<SegNode> right;
+    SegNode* left = nullptr;
+    SegNode* right = nullptr;
 };
 
 long long combinar(long long a, long long b) { return a + b; }
@@ -24,8 +23,8 @@ long long combinar(long long a, long long b) { return a + b; }
 //     en otro caso nuevo.der <- Update(nodo.der, m+1, r, pos, val) ;
 //     nuevo.valor <- combinar(nuevo.izq.valor, nuevo.der.valor) ;
 // devolver nuevo ;
-shared_ptr<SegNode> update(const shared_ptr<SegNode>& nodo, int l, int r, int pos, long long val) {
-    auto nuevo = make_shared<SegNode>(*nodo); // copia el nodo actual (izq/der apuntan a lo viejo)
+SegNode* update(SegNode* nodo, int l, int r, int pos, long long val) {
+    auto nuevo = new SegNode(*nodo); // copia el nodo actual (izq/der apuntan a lo viejo)
     if (l == r) {
         nuevo->value = val;
         return nuevo;
@@ -43,8 +42,8 @@ shared_ptr<SegNode> update(const shared_ptr<SegNode>& nodo, int l, int r, int po
 }
 
 // Construcción efímera inicial (prerrequisito, no repetida como tema nuevo).
-shared_ptr<SegNode> build(const long long* arr, int l, int r) {
-    auto nodo = make_shared<SegNode>();
+SegNode* build(const long long* arr, int l, int r) {
+    auto nodo = new SegNode();
     if (l == r) {
         nodo->value = arr[l];
         return nodo;
@@ -57,9 +56,10 @@ shared_ptr<SegNode> build(const long long* arr, int l, int r) {
 }
 
 // Consulta normal (la misma para cualquier versión: ver query-old-version.md).
-long long query(const shared_ptr<SegNode>& nodo, int l, int r, int ql, int qr) {
+long long query(SegNode* nodo, int l, int r, int ql, int qr) {
     if (qr < l || r < ql) return 0; // fuera de rango, elemento neutro de la suma
     if (ql <= l && r <= qr) return nodo->value;
     int m = (l + r) / 2;
     return combinar(query(nodo->left, l, m, ql, qr), query(nodo->right, m + 1, r, ql, qr));
 }
+

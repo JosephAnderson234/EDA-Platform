@@ -33,36 +33,38 @@
 
 #include <cassert>
 #include <climits>
+#include <functional>
 #include <iostream>
 #include <map>
-#include <memory>
 #include <queue>
 #include <string>
 #include <vector>
+using namespace std;
 
 struct Node {
   int val;
-  std::shared_ptr<Node> left, right;
+  Node *left = nullptr;
+  Node *right = nullptr;
 };
-using NodeP = std::shared_ptr<Node>;
+using NodeP = Node*;
 
 // Todos los BST posibles sobre las llaves [lo, hi] (formas de Catalán).
-static std::vector<NodeP> generateTrees(int lo, int hi) {
+static vector<NodeP> generateTrees(int lo, int hi) {
   if (lo > hi) return {nullptr};
-  std::vector<NodeP> result;
+  vector<NodeP> result;
   for (int root = lo; root <= hi; ++root) {
     auto lefts = generateTrees(lo, root - 1);
     auto rights = generateTrees(root + 1, hi);
     for (auto &l : lefts)
       for (auto &r : rights)
-        result.push_back(std::make_shared<Node>(Node{root, l, r}));
+        result.push_back(new Node{root, l, r});
   }
   return result;
 }
 
-static std::string serialize(const NodeP &n) {
+static string serialize(const NodeP &n) {
   if (!n) return "#";
-  return std::to_string(n->val) + "(" + serialize(n->left) + "," +
+  return to_string(n->val) + "(" + serialize(n->left) + "," +
          serialize(n->right) + ")";
 }
 
@@ -82,27 +84,27 @@ static NodeP rotateAt(const NodeP &node, int parentVal, bool rotateRight) {
     if (rotateRight) {
       if (!node->left) return node;  // no hay hijo izquierdo: no aplica
       NodeP n = node->left;
-      NodeP newP = std::make_shared<Node>(Node{node->val, n->right, node->right});
-      return std::make_shared<Node>(Node{n->val, n->left, newP});
+      NodeP newP = new Node{node->val, n->right, node->right};
+      return new Node{n->val, n->left, newP};
     } else {
       if (!node->right) return node;
       NodeP n = node->right;
-      NodeP newP = std::make_shared<Node>(Node{node->val, node->left, n->left});
-      return std::make_shared<Node>(Node{n->val, newP, n->right});
+      NodeP newP = new Node{node->val, node->left, n->left};
+      return new Node{n->val, newP, n->right};
     }
   }
   if (parentVal < node->val) {
     NodeP newLeft = rotateAt(node->left, parentVal, rotateRight);
     if (newLeft == node->left) return node;
-    return std::make_shared<Node>(Node{node->val, newLeft, node->right});
+    return new Node{node->val, newLeft, node->right};
   }
   NodeP newRight = rotateAt(node->right, parentVal, rotateRight);
   if (newRight == node->right) return node;
-  return std::make_shared<Node>(Node{node->val, node->left, newRight});
+  return new Node{node->val, node->left, newRight};
 }
 
 // Todos los vecinos a una rotación de distancia de `t` (por valor de nodo).
-static void collectRotatable(const NodeP &n, std::vector<std::pair<int, bool>> &out) {
+static void collectRotatable(const NodeP &n, vector<pair<int, bool>> &out) {
   if (!n) return;
   if (n->left) out.push_back({n->val, true});
   if (n->right) out.push_back({n->val, false});
@@ -113,19 +115,19 @@ static void collectRotatable(const NodeP &n, std::vector<std::pair<int, bool>> &
 int main() {
   const int n = 4;  // cota explícita: Catalán(4) = 14 árboles, ya tratable
 
-  std::vector<NodeP> trees = generateTrees(1, n);
-  std::map<std::string, int> indexOf;
+  vector<NodeP> trees = generateTrees(1, n);
+  map<string, int> indexOf;
   for (size_t i = 0; i < trees.size(); ++i) indexOf[serialize(trees[i])] = (int)i;
 
   const int T = (int)trees.size();
   assert(T == 14);  // número de Catalán C(4): verifica que la enumeración es exhaustiva
-  std::cout << "Enumerados " << T << " BST distintos sobre " << n
-            << " llaves (número de Catalán C(" << n << ") = 14). OK.\n";
+  cout << "Enumerados " << T << " BST distintos sobre " << n
+       << " llaves (número de Catalán C(" << n << ") = 14). OK.\n";
 
   // Grafo de rotaciones: adjacency[i] = índices alcanzables con 1 rotación.
-  std::vector<std::vector<int>> adjacency(T);
+  vector<vector<int>> adjacency(T);
   for (int i = 0; i < T; ++i) {
-    std::vector<std::pair<int, bool>> rotatable;
+    vector<pair<int, bool>> rotatable;
     collectRotatable(trees[i], rotatable);
     for (auto &[parentVal, right] : rotatable) {
       NodeP neighbor = rotateAt(trees[i], parentVal, right);
@@ -135,10 +137,10 @@ int main() {
   }
 
   // Distancia de rotación todo-contra-todo (BFS desde cada árbol).
-  std::vector<std::vector<int>> dist(T, std::vector<int>(T, INT_MAX));
+  vector<vector<int>> dist(T, vector<int>(T, INT_MAX));
   for (int s = 0; s < T; ++s) {
     dist[s][s] = 0;
-    std::queue<int> q;
+    queue<int> q;
     q.push(s);
     while (!q.empty()) {
       int u = q.front();
@@ -151,14 +153,14 @@ int main() {
       }
     }
   }
-  std::cout << "Distancia de rotación todo-contra-todo calculada por BFS sobre "
-            << T << " árboles. OK.\n";
+  cout << "Distancia de rotación todo-contra-todo calculada por BFS sobre "
+       << T << " árboles. OK.\n";
 
   // OPT(S) exacto vía DP sobre el grafo de rotaciones (árbol inicial libre).
-  auto optimalCost = [&](const std::vector<int> &S) {
-    std::vector<int> dp(T, 0);  // dp[t] = costo mínimo terminando en árbol t
+  auto optimalCost = [&](const vector<int> &S) {
+    vector<int> dp(T, 0);  // dp[t] = costo mínimo terminando en árbol t
     for (int key : S) {
-      std::vector<int> next(T, INT_MAX);
+      vector<int> next(T, INT_MAX);
       for (int t = 0; t < T; ++t) {
         int d = depthOf(trees[t], key);
         for (int from = 0; from < T; ++from) {
@@ -170,31 +172,31 @@ int main() {
       dp = next;
     }
     int best = INT_MAX;
-    for (int v : dp) best = std::min(best, v);
+    for (int v : dp) best = min(best, v);
     return best;
   };
 
   // Mejor BST estático: mismo árbol para toda la secuencia, sin rotar.
-  auto bestStaticCost = [&](const std::vector<int> &S) {
+  auto bestStaticCost = [&](const vector<int> &S) {
     int best = INT_MAX;
     for (auto &t : trees) {
       int cost = 0;
       for (int key : S) cost += depthOf(t, key);
-      best = std::min(best, cost);
+      best = min(best, cost);
     }
     return best;
   };
 
   // BST que rota: heurística move-to-root (no es el splay tree del curso;
   // sólo demuestra que "rotar" ya mejora sobre lo estático en este ejemplo).
-  auto moveToRootCost = [&](const std::vector<int> &S) {
+  auto moveToRootCost = [&](const vector<int> &S) {
     NodeP cur = trees[0];
     int cost = 0;
     for (int key : S) {
       cost += depthOf(cur, key);
       while (cur->val != key) {
         // Encuentra el padre de `key` y rota `key` un nivel hacia arriba.
-        std::function<int(const NodeP &)> findParentVal = [&](const NodeP &node) -> int {
+        function<int(const NodeP &)> findParentVal = [&](const NodeP &node) -> int {
           if (node->left && node->left->val == key) return node->val;
           if (node->right && node->right->val == key) return node->val;
           return key < node->val ? findParentVal(node->left) : findParentVal(node->right);
@@ -213,45 +215,46 @@ int main() {
   // que fijar de antemano cuál de las dos llaves queda más arriba y paga
   // el costo alto para la otra en todo su bloque; OPT(S) puede rotar una
   // vez en la frontera entre bloques y quedarse barato en ambos.
-  std::vector<int> S = {1, 1, 1, 1, 4, 4, 4, 4};
+  vector<int> S = {1, 1, 1, 1, 4, 4, 4, 4};
 
   int opt = optimalCost(S);
   int stat = bestStaticCost(S);
   int rot = moveToRootCost(S);
 
-  std::cout << "\nSecuencia S = (1,1,1,1,4,4,4,4) sobre llaves {1,2,3,4}:\n";
-  std::cout << "  mejor BST estático (sin rotar):      costo = " << stat << "\n";
-  std::cout << "  BST con move-to-root (sí rota):      costo = " << rot << "\n";
-  std::cout << "  OPT(S) exacto (todo árbol/rotación):  costo = " << opt << "\n";
+  cout << "\nSecuencia S = (1,1,1,1,4,4,4,4) sobre llaves {1,2,3,4}:\n";
+  cout << "  mejor BST estático (sin rotar):      costo = " << stat << "\n";
+  cout << "  BST con move-to-root (sí rota):      costo = " << rot << "\n";
+  cout << "  OPT(S) exacto (todo árbol/rotación):  costo = " << opt << "\n";
 
   // Lo que el material afirma como propiedad general: OPT(S) nunca es peor
   // que ninguna estrategia realizable dentro del mismo modelo de costo,
   // porque un árbol estático (o move-to-root) es un caso particular de las
   // estrategias sobre las que OPT(S) minimiza.
   assert(opt <= stat);
-  std::cout << "Verificado: OPT(S) <= costo del mejor estático (" << opt
-            << " <= " << stat << "). El estático es un caso particular de "
-            << "estrategia sobre el que OPT también minimiza.\n";
+  cout << "Verificado: OPT(S) <= costo del mejor estático (" << opt
+       << " <= " << stat << "). El estático es un caso particular de "
+       << "estrategia sobre el que OPT también minimiza.\n";
   assert(opt <= rot);
-  std::cout << "Verificado: OPT(S) <= costo de move-to-root (" << opt
-            << " <= " << rot << "). Ninguna estrategia online concreta "
-            << "puede superar al óptimo offline en el mismo modelo.\n";
+  cout << "Verificado: OPT(S) <= costo de move-to-root (" << opt
+       << " <= " << rot << "). Ninguna estrategia online concreta "
+       << "puede superar al óptimo offline en el mismo modelo.\n";
 
   // Segunda secuencia: acceso repetido a la misma llave (examples.md,
   // Mínimo) — aquí no debería haber ninguna ventaja de rotar.
-  std::vector<int> S2 = {2, 2, 2};
+  vector<int> S2 = {2, 2, 2};
   int opt2 = optimalCost(S2);
   int stat2 = bestStaticCost(S2);
   assert(opt2 == stat2);
-  std::cout << "\nSecuencia S = (2, 2, 2): OPT(S) = " << opt2
-            << " = costo estático = " << stat2 << ". Verificado: cuando no "
-            << "hay nada que explotar reestructurando, OPT no mejora sobre "
-            << "el mejor estático.\n";
+  cout << "\nSecuencia S = (2, 2, 2): OPT(S) = " << opt2
+       << " = costo estático = " << stat2 << ". Verificado: cuando no "
+       << "hay nada que explotar reestructurando, OPT no mejora sobre "
+       << "el mejor estático.\n";
 
-  std::cout << "\nEsto NO es un algoritmo de optimalidad dinámica: es fuerza "
-            << "bruta acotada a n <= 4 para hacer tangible qué es OPT(S). "
-            << "La pregunta del tema (existe un algoritmo ONLINE que se "
-            << "acerque a este OPT sin fuerza bruta ni ver el futuro) sigue "
-            << "abierta.\n";
+  cout << "\nEsto NO es un algoritmo de optimalidad dinámica: es fuerza "
+       << "bruta acotada a n <= 4 para hacer tangible qué es OPT(S). "
+       << "La pregunta del tema (existe un algoritmo ONLINE que se "
+       << "acerque a este OPT sin fuerza bruta ni ver el futuro) sigue "
+       << "abierta.\n";
   return 0;
 }
+
