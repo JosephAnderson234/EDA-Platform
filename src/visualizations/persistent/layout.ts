@@ -40,6 +40,7 @@ export type PersistentPort = { id: string; label?: string; to: string };
 
 export type PersistentStep = {
   note: string;
+  noteHtml?: string;
   /** default 'path-copying' */
   mode?: PersistentMode;
   nodes: PersistentNode[];

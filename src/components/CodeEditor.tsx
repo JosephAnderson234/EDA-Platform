@@ -1,8 +1,30 @@
 import { useState } from 'react';
-import CodeMirror, { EditorView } from '@uiw/react-codemirror';
-import { cpp } from '@codemirror/lang-cpp';
+import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 
 export type CodeStep = { label: string; code: string };
+
+// Monaco se carga bajo demanda desde el CDN del loader (@monaco-editor/react),
+// no desde nuestro bundle: son varios MB que sólo hacen falta en las páginas
+// de operación, y una vez en caché sirve para todas.
+const MIN_H = 160;
+const MAX_H = 640;
+
+/** Tema oscuro sobre la misma losa (`--slab`) que usan los bloques de código. */
+const defineTheme: BeforeMount = (monaco) => {
+  const slab =
+    getComputedStyle(document.documentElement).getPropertyValue('--slab').trim() || '#14171c';
+  monaco.editor.defineTheme('eda-slab', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': slab,
+      'editorGutter.background': slab,
+      'editor.lineHighlightBackground': '#ffffff08',
+      'editor.lineHighlightBorder': '#00000000',
+    },
+  });
+};
 
 /**
  * El brief prohíbe mostrar el código como bloque estático: siempre editable y
@@ -15,6 +37,15 @@ export type CodeStep = { label: string; code: string };
 export default function CodeEditor({ steps }: { steps: CodeStep[] }) {
   const [i, setI] = useState(0);
   const [code, setCode] = useState(steps.map((s) => s.code));
+  const [height, setHeight] = useState(MIN_H);
+
+  // Alto = alto del contenido (acotado): el editor crece con el código en vez
+  // de dejar un hueco fijo o un scroll interno en los pasos cortos.
+  const onMount: OnMount = (editor) => {
+    const fit = () => setHeight(Math.min(MAX_H, Math.max(MIN_H, editor.getContentHeight())));
+    editor.onDidContentSizeChange(fit);
+    fit();
+  };
 
   const update = (value: string) =>
     setCode((prev) => prev.map((c, idx) => (idx === i ? value : c)));
@@ -68,14 +99,33 @@ export default function CodeEditor({ steps }: { steps: CodeStep[] }) {
         ))}
       </div>
 
-      <div className="bg-[var(--slab)] [&_.cm-editor]:bg-transparent [&_.cm-gutters]:border-0 [&_.cm-gutters]:bg-transparent">
-        <CodeMirror
+      <div className="bg-[var(--slab)] py-2">
+        <Editor
+          height={height}
+          language="cpp"
+          path={`${steps[i].label}.cpp`}
           value={code[i]}
-          onChange={update}
-          extensions={[cpp(), EditorView.lineWrapping]}
-          theme="dark"
-          basicSetup={{ lineNumbers: true, foldGutter: false, highlightActiveLine: false }}
-          className="text-[13.5px]"
+          onChange={(v) => update(v ?? '')}
+          beforeMount={defineTheme}
+          onMount={onMount}
+          theme="eda-slab"
+          loading={<span className="tag px-4 text-[var(--slab-ink)]">cargando editor…</span>}
+          options={{
+            fontFamily: "'IBM Plex Mono', ui-monospace, monospace",
+            fontSize: 13.5,
+            lineHeight: 21,
+            wordWrap: 'on',
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            folding: false,
+            renderLineHighlight: 'line',
+            overviewRulerLanes: 0,
+            hideCursorInOverviewRuler: true,
+            scrollbar: { alwaysConsumeMouseWheel: false, verticalScrollbarSize: 8 },
+            padding: { top: 4, bottom: 4 },
+            automaticLayout: true,
+            tabSize: 4,
+          }}
         />
       </div>
 

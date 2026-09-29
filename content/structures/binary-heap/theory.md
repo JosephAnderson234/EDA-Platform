@@ -61,7 +61,7 @@ $$
 parent(i)=\lfloor i/2\rfloor,\qquad left(i)=2i,\qquad right(i)=2i+1.
 $$
 
-Aquí `floor` (\(\lfloor\ \rfloor\)) significa redondear hacia abajo. Por
+Aquí `floor` ($\lfloor\ \rfloor$) significa redondear hacia abajo. Por
 ejemplo, `parent(5)=floor(5/2)=2`; por eso el nodo `A[5]=2` del ejemplo tiene
 como padre a `A[2]=8`.
 
@@ -73,7 +73,7 @@ La variable `i` representa cualquier nodo que sí tenga padre. La fórmula no
 ordena hermanos ni ramas distintas: sólo compara una arista padre-hijo. Esa
 es exactamente la pequeña parte de la estructura que `Max-Heapify` repara.
 
-### Duda frecuente: ¿por qué no hay hijos después de \(\lfloor n/2\rfloor\)?
+### Duda frecuente: ¿por qué no hay hijos después de $\lfloor n/2\rfloor$?
 
 Si `i > floor(n/2)`, entonces `2i > n`. Pero `2i` sería el índice del hijo
 izquierdo, así que ese nodo no puede tener hijos: es una hoja. De ahí sale
@@ -100,7 +100,7 @@ que `Build-Max-Heap` empiece en `floor(n/2)`.
 
 ## Análisis de complejidad
 
-### ¿Por qué aparece \(\lg n\) en los heaps?
+### ¿Por qué aparece $\lg n$ en los heaps?
 
 Primero llamemos `h` a la altura del árbol y `n` a su número de nodos. Un
 árbol binario casi completo de altura `h` tiene al menos un nivel completo
@@ -116,19 +116,19 @@ orden:
 
 $$2^h \le 2^{\lg n} < 2^{h+1}.$$
 
-Por definición de `lg`, \(2^{\lg n}=n\). Sustituyendo ese término central:
+Por definición de `lg`, $2^{\lg n}=n$. Sustituyendo ese término central:
 
 $$2^h \le n < 2^{h+1}.$$
 
 Esta desigualdad significa: `n` nodos alcanzan para tener altura `h`, pero
 no para completar un árbol de altura `h+1`. Por tanto, el entero que está
-debajo de \(\lg n\) es justamente `h`:
+debajo de $\lg n$ es justamente `h`:
 
 $$h=\lfloor\lg n\rfloor.$$
 
 Una operación que baja por un solo camino raíz-hoja o sube por un único
 camino hoja-raíz visita como máximo un nodo por nivel. Por ello visita a lo
-sumo \(O(\lg n)\) niveles; no explora todos los nodos del árbol.
+sumo $O(\lg n)$ niveles; no explora todos los nodos del árbol.
 
 > **Para recordar.** El `log n` no aparece por magia: contar niveles de un
 > árbol binario equivale a preguntar cuántas veces se puede duplicar hasta

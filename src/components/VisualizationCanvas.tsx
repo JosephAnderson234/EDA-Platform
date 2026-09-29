@@ -539,9 +539,17 @@ export default function VisualizationCanvas({ steps, width = 640, height = 260 }
       </div>
 
       <figcaption className="border-t border-[var(--rule)]">
-        <p className="min-h-[3.25rem] px-5 py-3.5 text-[0.9375rem] leading-snug" aria-live="polite">
-          {step.note}
-        </p>
+        {step.noteHtml ? (
+          <p
+            className="viz-note min-h-[3.25rem] px-5 py-3.5 text-[0.9375rem] leading-snug"
+            aria-live="polite"
+            dangerouslySetInnerHTML={{ __html: step.noteHtml }}
+          />
+        ) : (
+          <p className="viz-note min-h-[3.25rem] px-5 py-3.5 text-[0.9375rem] leading-snug" aria-live="polite">
+            {step.note}
+          </p>
+        )}
 
         <div className="flex items-center gap-1 border-t border-[var(--rule)] bg-[var(--fill)] px-3 py-2">
           <button

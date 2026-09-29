@@ -76,7 +76,7 @@ procesaron), así que sólo necesita reparar la raíz de su propio subárbol.
 Las hojas ya son montículos triviales de un solo nodo, así que ni siquiera
 hace falta tocarlas.
 
-> **Duda frecuente: ¿por qué empieza en \(\lfloor n/2\rfloor\)?** Para un
+> **Duda frecuente: ¿por qué empieza en $\lfloor n/2\rfloor$?** Para un
 > índice `i > floor(n/2)`, el hijo izquierdo sería `2i > n`. No existe ni
 > siquiera ese primer hijo, así que `i` es hoja. Una hoja ya es por sí sola
 > un Max-Heap válido; no hace falta llamar Max-Heapify sobre ella.
@@ -136,12 +136,12 @@ el número de nodos se divide entre 2 cada vez. En general, para una altura
 $$\text{nodos a altura }h\le \left\lceil\frac{n}{2^{h+1}}\right\rceil.$$
 
 El `h+1` aparece porque en altura 0 ya queremos `n/2`, no `n`: al reemplazar
-`h` por 0 queda \(n/2^{0+1}=n/2\). Si `h=1`, queda `n/4`; si `h=2`, `n/8`.
+`h` por 0 queda $n/2^{0+1}=n/2$. Si `h=1`, queda `n/4`; si `h=2`, `n/8`.
 
 ### Matemática paso a paso
 
 Un nodo a altura `h` puede bajar como máximo `h` niveles, así que su
-`Max-Heapify` cuesta \(O(h)\). Multiplicamos dos cantidades que ya sabemos
+`Max-Heapify` cuesta $O(h)$. Multiplicamos dos cantidades que ya sabemos
 qué representan: cuántos nodos hay a esa altura, por el trabajo de cada uno.
 
 $$
@@ -150,13 +150,13 @@ T(n)\le \sum_{h=0}^{\lfloor\lg n\rfloor}
 $$
 
 Para la cota asintótica, el factor importante es `n/2^(h+1)`; sacar `n`
-fuera de la suma deja una constante `1/2` que se absorbe en \(O(\cdot)\):
+fuera de la suma deja una constante `1/2` que se absorbe en $O(\cdot)$:
 
 $$
 T(n)=O\left(n\sum_{h=0}^{\lfloor\lg n\rfloor}\frac{h}{2^h}\right).
 $$
 
-Todos los términos \(h/2^h\) son no negativos. Agregar más términos no
+Todos los términos $h/2^h$ son no negativos. Agregar más términos no
 puede hacer menor la suma, por lo que podemos usar una suma más fácil de
 acotar:
 
@@ -184,19 +184,19 @@ $$
 $$
 
 Restamos la segunda línea de la primera. Cada término que queda vale una
-potencia de \(1/2\):
+potencia de $1/2$:
 
 $$
 S-\frac S2=\frac12+\frac14+\frac18+\frac1{16}+\cdots=1.
 $$
 
-Como el lado izquierdo es \(S/2\), obtenemos \(S/2=1\), y por tanto
-\(S=2\). Sustituir una constante por 2 da:
+Como el lado izquierdo es $S/2$, obtenemos $S/2=1$, y por tanto
+$S=2$. Sustituir una constante por 2 da:
 
 $$T(n)=O(n\cdot2)=O(n).$$
 
-También hay una cota inferior \(\Omega(n)\): el bucle examina
-\(\lfloor n/2\rfloor\) posiciones internas incluso cuando el arreglo ya
+También hay una cota inferior $\Omega(n)$: el bucle examina
+$\lfloor n/2\rfloor$ posiciones internas incluso cuando el arreglo ya
 es un heap. Por ello hay trabajo lineal inevitable. Juntando ambas cotas:
 
 $$\text{Build-Max-Heap}=\Theta(n).$$

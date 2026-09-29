@@ -16,6 +16,7 @@ export type TreeLink = {
 };
 export type TreeStep = {
   note: string;
+  noteHtml?: string;
   nodes: TreeNode[];
   highlight: string[];
   /** Aristas extra además de las derivadas de `parent` (p.ej. un puntero de
@@ -63,6 +64,7 @@ export default function TreeVisualization({ steps }: { steps: TreeStep[] }) {
       // Camino de siempre: un solo bosque, sin paneles.
       return {
         note: s.note,
+        noteHtml: s.noteHtml,
         highlight: s.highlight,
         nodes: layout(s.nodes).map((n) => ({ ...n, ...collapsedShape(n) })),
         edges,
@@ -96,7 +98,7 @@ export default function TreeVisualization({ steps }: { steps: TreeStep[] }) {
       h: maxY - TOP + 4 + 40,
     }));
 
-    return { note: s.note, highlight: s.highlight, nodes, edges, groups };
+    return { note: s.note, noteHtml: s.noteHtml, highlight: s.highlight, nodes, edges, groups };
   });
 
   // El lienzo crece con el árbol/panel más profundo de la secuencia.

@@ -15,6 +15,7 @@
 // sigue siendo el registro quien decide qué familias existen.
 import { VISUALIZATIONS } from '../visualizations/registry';
 import { visualizationSchema } from '../lib/schemas';
+import { noteToHtml } from '../lib/note-html';
 import TreeVisualization from '../visualizations/tree/TreeVisualization';
 import PersistentVisualization from '../visualizations/persistent/PersistentVisualization';
 import RangeTreeVisualization from '../visualizations/range-tree/RangeTreeVisualization';
@@ -44,7 +45,13 @@ const viz = parsed.data;
 // visualizationSchema). Los componentes sólo reciben `steps`, así que se
 // aplica aquí; si no, el mode a nivel de bloque se descartaba en silencio y
 // había que repetirlo paso por paso. El mode propio de un paso gana.
-const steps = viz.mode ? viz.steps.map((s) => ({ mode: viz.mode, ...s })) : viz.steps;
+// `noteHtml`: la nota ya renderizada (KaTeX + markdown en línea) — ver
+// lib/note-html.ts. El canvas la prefiere sobre `note`.
+const steps = viz.steps.map((s) => ({
+  ...(viz.mode ? { mode: viz.mode } : {}),
+  ...s,
+  noteHtml: noteToHtml(s.note),
+}));
 ---
 
 {viz.type === 'tree' && <TreeVisualization client:visible steps={steps} />}

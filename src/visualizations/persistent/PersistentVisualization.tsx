@@ -28,6 +28,7 @@ export default function PersistentVisualization({ steps }: { steps: PersistentSt
       offsetX || offsetY ? { ...p, x: p.x + offsetX, y: p.y + offsetY } : p;
     return {
       note: s.note,
+      noteHtml: s.noteHtml,
       highlight: s.highlight ?? [],
       nodes: f.nodes.map(shift),
       edges: f.edges,

@@ -10,6 +10,7 @@ export default function RangeTreeVisualization({ steps }: { steps: RangeStep[] }
   const frames = steps.map(layout);
   const canvasSteps: CanvasStep[] = steps.map((s, i) => ({
     note: s.note,
+    noteHtml: s.noteHtml,
     highlight: s.highlight ?? [],
     nodes: frames[i].nodes,
     edges: frames[i].edges,

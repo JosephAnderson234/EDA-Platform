@@ -120,13 +120,13 @@ pseudocódigo) y `full-implementation.cpp` en el editor de arriba.
 
 En cada llamada se calculan dos índices, se hacen como máximo dos
 comparaciones y, si hace falta, un intercambio. Ese trabajo no depende de
-cuántos nodos tenga el heap: es \(O(1)\) **por nivel**.
+cuántos nodos tenga el heap: es $O(1)$ **por nivel**.
 
 Tras un intercambio, el elemento que estaba en `i` baja a uno de sus hijos.
 No vuelve a subir ni visita la otra rama, así que la recursión sigue un único
 camino hasta una hoja. Un heap de `n` nodos tiene altura
-\(\lfloor\lg n\rfloor\), de modo que ese camino contiene a lo más
-\(O(\lg n)\) niveles.
+$\lfloor\lg n\rfloor$, de modo que ese camino contiene a lo más
+$O(\lg n)$ niveles.
 
 $$
 \underbrace{O(1)}_{\text{trabajo por nivel}}

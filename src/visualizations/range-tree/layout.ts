@@ -39,6 +39,7 @@ export type RangeBridge = { from: string; fromIndex: number; to: string; toIndex
 
 export type RangeStep = {
   note: string;
+  noteHtml?: string;
   /** default 'tree' */
   mode?: RangeMode;
   nodes?: RangeNode[];

@@ -63,12 +63,12 @@ const hasRail = headings.some((h) => h.depth === 2);
   {data.kind === 'operation' && data.visualization && <Visualization viz={data.visualization} />}
   {
     /*
-      client:only (no client:visible): CodeMirror toca `document`/mide texto
-      en el DOM real y su salida servidor-renderizada nunca coincide con la
-      del cliente — eso es justo el "Minified React error #418" que se veía
-      en cada operación con editor. client:only nunca intenta SSR-earlo, así
-      que no hay nada que desajustar; el editor sigue siendo progresivo, sólo
-      que aparece tras hidratar en vez de tener un HTML previo.
+      client:only (no client:visible): el editor (Monaco) toca `document`/mide
+      texto en el DOM real y su salida servidor-renderizada nunca coincidiría
+      con la del cliente — el "Minified React error #418" que se veía con el
+      editor anterior. client:only nunca intenta SSR-earlo, así que no hay
+      nada que desajustar; el editor sigue siendo progresivo, sólo que
+      aparece tras hidratar en vez de tener un HTML previo.
     */
   }
   {data.kind === 'operation' && cppSteps.length > 0 && <CodeEditor client:only="react" steps={cppSteps} />}

@@ -131,6 +131,8 @@ export type CanvasText = {
 
 export type CanvasStep = {
   note: string;
+  /** `note` pre-renderada en build (KaTeX + markdown en línea). */
+  noteHtml?: string;
   nodes: CanvasNode[];
   edges: CanvasEdge[];
   highlight: string[];
