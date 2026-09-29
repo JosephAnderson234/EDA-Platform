@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
+import { EDITOR_BG, LANGUAGE, THEME, setupOneDark } from './monaco-one-dark';
 
 export type CodeStep = { label: string; code: string };
 
@@ -11,16 +12,27 @@ const MAX_H = 640;
 
 // Constantes de módulo, no literales en el JSX: un objeto nuevo en cada
 // render hace que @monaco-editor/react llame `updateOptions` en cada tecla.
+// Métrica y gutter calcados del editor anterior (CodeMirror + One Dark):
+// monospace del sistema a 13.5px, interlineado 1.4, 4px arriba/abajo,
+// números de línea angostos y sin guías ni pares de llaves coloreados.
 const OPTIONS = {
-  fontFamily: "'IBM Plex Mono', ui-monospace, monospace",
+  fontFamily: 'monospace',
   fontSize: 13.5,
-  lineHeight: 21,
+  lineHeight: 19,
   wordWrap: 'on',
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
   folding: false,
-  renderLineHighlight: 'line',
+  glyphMargin: false,
+  lineNumbersMinChars: 2,
+  lineDecorationsWidth: 8,
+  renderLineHighlight: 'gutter',
+  guides: { indentation: false },
+  bracketPairColorization: { enabled: false },
+  occurrencesHighlight: 'off',
+  matchBrackets: 'near',
   overviewRulerLanes: 0,
+  overviewRulerBorder: false,
   hideCursorInOverviewRuler: true,
   scrollbar: { alwaysConsumeMouseWheel: false, verticalScrollbarSize: 8 },
   padding: { top: 4, bottom: 4 },
@@ -28,24 +40,9 @@ const OPTIONS = {
   automaticLayout: true,
   tabSize: 4,
 } as const;
-const LOADING = <span className="tag px-4 text-[var(--slab-ink)]">cargando editor…</span>;
+const LOADING = <span className="tag px-4 text-[#7d8799]">cargando editor…</span>;
 
-/** Tema oscuro sobre la misma losa (`--slab`) que usan los bloques de código. */
-const defineTheme: BeforeMount = (monaco) => {
-  const slab =
-    getComputedStyle(document.documentElement).getPropertyValue('--slab').trim() || '#14171c';
-  monaco.editor.defineTheme('eda-slab', {
-    base: 'vs-dark',
-    inherit: true,
-    rules: [],
-    colors: {
-      'editor.background': slab,
-      'editorGutter.background': slab,
-      'editor.lineHighlightBackground': '#ffffff08',
-      'editor.lineHighlightBorder': '#00000000',
-    },
-  });
-};
+const setup: BeforeMount = (monaco) => setupOneDark(monaco);
 
 /**
  * El brief prohíbe mostrar el código como bloque estático: siempre editable y
@@ -138,17 +135,17 @@ export default function CodeEditor({ steps }: { steps: CodeStep[] }) {
         ))}
       </div>
 
-      <div className="bg-[var(--slab)] py-2">
+      <div style={{ background: EDITOR_BG }}>
         <div ref={boxRef} style={{ height: MIN_H }}>
           <Editor
             height="100%"
-            language="cpp"
+            language={LANGUAGE}
             path={`${steps[i].label}.cpp`}
             defaultValue={steps[i].code}
             onChange={(v) => update(v ?? '')}
-            beforeMount={defineTheme}
+            beforeMount={setup}
             onMount={onMount}
-            theme="eda-slab"
+            theme={THEME}
             loading={LOADING}
             options={OPTIONS}
           />
